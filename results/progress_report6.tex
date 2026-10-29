@@ -66,20 +66,19 @@ thresholds below.
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lll}
 Category & Primary metric & Secondary \\
 \hline
 Downstream prediction (probe on $Z$) & AUPRC & AUROC \\
 Feature recovery & Mean per-feature $R^2$ & Per-feature table \\
 Geometry preservation & Spearman (300-patient subsample) & Pearson, NN overlap \\
-\end{tabular}
+\end{tabular}%
+}
 \caption{Locked evaluation metrics: three categories, one primary each.
-AUPRC is primary for prediction because the outcome is rare and ranking
-the positives is what matters. Per-encoding diagnostics (final KL, seed
-SDs, instability log) are reported but never compared across encodings,
-since validation losses are not comparable when each encoding changes the
-reconstruction target's scale. A clustering check (k-means ARI, suggested
-in coaching) is exploratory only.}
+AUPRC is primary because the outcome is rare. Per-encoding diagnostics
+(final KL, seed SDs, instability log) are reported but never compared
+across encodings; a clustering check (k-means ARI) is exploratory only.}
 \end{table}
 
 \subsection{Protocol and success thresholds (locked)}
@@ -147,7 +146,7 @@ since each changes the reconstruction target's scale.}
 
 \begin{figure}
 \centering
-\includegraphics[width=0.88\columnwidth]{fig_week6_all_encodings.png}
+\includegraphics[width=0.80\columnwidth]{fig_week6_all_encodings.png}
 \caption{Per-metric comparison with error bars across the six encodings
 (one colour per encoding), eICU demo data; the maximum in each panel is
 marked by a dashed line. Findings: no encoding wins overall --- the maximum changes
