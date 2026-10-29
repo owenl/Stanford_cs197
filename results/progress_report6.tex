@@ -24,19 +24,17 @@
 Last week's plan was to move from evaluating a VAE trained on standardized
 numerical features to systematically comparing six numerical encoding
 strategies: (1) develop 3--5 testable hypotheses about how feature
-distributions (Gaussian, skewed, multimodal, zero-inflated) respond to
-different encodings; (2) finalize and debug the six encoding strategies from
-Week 2; (3) agree on a fixed VAE configuration and control for differences
-in the number of learnable parameters across encodings; (4) finalize the
-evaluation metrics (downstream prediction, feature recovery, geometry
-preservation) against standardized-feature baselines; and (5) build a
-reproducible pipeline and experiment table before running the experiments.
-All five items are complete. Following the coaching feedback --- hypotheses
-and success criteria first, one variable at a time --- this week we locked
-the baseline, the evaluation metrics, and the success thresholds
-\emph{before} touching the full data, then dry-ran the whole comparison on
-the demo data under those rules (24 parameter-fair runs, 6 encodings
-$\times$ 3 seeds, plus fixed-capacity contrasts).
+distributions respond to different encodings; (2) finalize and debug the
+six encoding strategies from Week 2; (3) agree on a fixed VAE configuration
+and control for parameter-count differences across encodings; (4) finalize
+the evaluation metrics against standardized-feature baselines; and (5)
+build a reproducible pipeline and experiment table. All five items are
+complete. Following the coaching feedback --- hypotheses and success
+criteria first, one variable at a time --- this week we locked the
+baseline, the evaluation metrics, and the success thresholds \emph{before}
+touching the full data, then dry-ran the whole comparison on the demo data
+under those rules (24 parameter-fair runs, 6 encodings $\times$ 3 seeds,
+plus fixed-capacity contrasts).
 
 \subsection{Vector}
 A comparison of encodings only means something under a locked baseline and
@@ -146,7 +144,7 @@ since each changes the reconstruction target's scale.}
 
 \begin{figure}
 \centering
-\includegraphics[width=0.80\columnwidth]{fig_week6_all_encodings.png}
+\includegraphics[width=0.72\columnwidth]{fig_week6_all_encodings.png}
 \caption{Per-metric comparison with error bars across the six encodings
 (one colour per encoding), eICU demo data; the maximum in each panel is
 marked by a dashed line. Findings: no encoding wins overall --- the maximum changes
