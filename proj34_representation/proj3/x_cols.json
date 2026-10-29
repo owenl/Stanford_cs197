@@ -1,0 +1,54 @@
+{
+ "num": [
+  "age",
+  "admissionweight",
+  "heartrate_bin1",
+  "respiration_bin1",
+  "sao2_bin1",
+  "sodium",
+  "Hgb",
+  "creatinine",
+  "BUN",
+  "glucose",
+  "WBC x 1000",
+  "platelets x 1000"
+ ],
+ "bin": [
+  "admissiondx_Sepsis, pulmonary",
+  "admissiondx_CHF, congestive heart failure",
+  "admissiondx_Infarction, acute myocardial (MI)",
+  "admissiondx_Diabetic ketoacidosis",
+  "admissiondx_Pneumonia, bacterial"
+ ],
+ "cat": [
+  "gender",
+  "ethnicity",
+  "hospital_region"
+ ],
+ "all": [
+  "age",
+  "admissionweight",
+  "heartrate_bin1",
+  "respiration_bin1",
+  "sao2_bin1",
+  "sodium",
+  "Hgb",
+  "creatinine",
+  "BUN",
+  "glucose",
+  "WBC x 1000",
+  "platelets x 1000",
+  "admissiondx_Sepsis, pulmonary",
+  "admissiondx_CHF, congestive heart failure",
+  "admissiondx_Infarction, acute myocardial (MI)",
+  "admissiondx_Diabetic ketoacidosis",
+  "admissiondx_Pneumonia, bacterial",
+  "gender",
+  "ethnicity",
+  "hospital_region"
+ ],
+ "Y": [
+  "mortality_at48h",
+  "label_J96.00"
+ ]
+}
