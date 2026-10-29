@@ -43,3 +43,13 @@ Figures in `results/week6/`: `training_curves.png`, `metric_comparison.png`,
 3. Per-feature wins do not follow Week 2 distribution labels cleanly (only WBC behaves
    as the skew story predicts) — Week 7 needs a feature-level explanation, not a
    distribution-label one.
+
+## Addendum (2026-10-29): log + min-max binning diagnostics
+Run under the identical Week 5/6 protocol after the team's canonical six were
+confirmed from progress_report5.tex. Log: best val loss 11.88 ± 0.02, final
+val KL 2.72 (healthy posterior use, like standard's 2.69), no failed seeds.
+Min-max binning: best val loss 10.63 ± 0.00 but final KL ~0.0 — the same
+near-total posterior collapse as quantile binning, confirming the Week 6
+diagnosis that binning's failure is a property of the representation, not of
+training or of the binning scheme. Combined 9-encoding comparison figure:
+results/week6/fig_week6_all_encodings.png.

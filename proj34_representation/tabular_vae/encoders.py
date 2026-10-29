@@ -292,3 +292,63 @@ class PeriodicEncoder:
         z = np.atleast_2d(np.asarray(z, dtype=float))
         A = np.hstack([z, np.ones((len(z), 1))])
         return (A @ self.readout_).ravel()
+
+
+class LogEncoder:
+    """Log transformation + standardization — one of the team's six encodings
+    (per progress_report5.tex 'Next week's plan': 'log transformation').
+    x -> log(x - train_min + 1), then standardized with train statistics."""
+
+    def fit(self, x):
+        x = np.asarray(x, dtype=float)
+        x = x[~np.isnan(x)]
+        self.min_ = float(x.min())
+        z = np.log(x - self.min_ + 1.0)
+        self.mean_ = float(z.mean())
+        self.std_ = float(z.std()) if z.std() > 0 else 1.0
+        self.output_dim_ = 1
+        return self
+
+    def transform(self, x):
+        x = np.asarray(x, dtype=float)
+        z = np.log(np.clip(x - self.min_ + 1.0, 1e-9, None))
+        return ((z - self.mean_) / self.std_).reshape(-1, 1)
+
+    def inverse_transform(self, z):
+        z = np.asarray(z, dtype=float).ravel()
+        return np.exp(z * self.std_ + self.mean_) - 1.0 + self.min_
+
+
+class MinMaxBinningEncoder:
+    """Min-max (equal-width) binning + one-hot — one of the team's six encodings
+    (per progress_report5.tex: 'min--max binning'). Bins span the training
+    [min, max]; values outside are clipped to the edge bins. Inverse returns
+    bin centres (lossy, like quantile binning)."""
+
+    def __init__(self, n_bins=10):
+        self.n_bins = n_bins
+
+    def fit(self, x):
+        x = np.asarray(x, dtype=float)
+        x = x[~np.isnan(x)]
+        self.lo_, self.hi_ = float(x.min()), float(x.max())
+        if self.hi_ <= self.lo_:
+            self.hi_ = self.lo_ + 1.0
+        self.edges_ = np.linspace(self.lo_, self.hi_, self.n_bins + 1)
+        self.centers_ = 0.5 * (self.edges_[:-1] + self.edges_[1:])
+        self.output_dim_ = self.n_bins
+        return self
+
+    def _bin(self, x):
+        idx = np.digitize(np.asarray(x, dtype=float), self.edges_[1:-1])
+        return np.clip(idx, 0, self.n_bins - 1)
+
+    def transform(self, x):
+        idx = self._bin(x)
+        out = np.zeros((len(idx), self.n_bins))
+        out[np.arange(len(idx)), idx] = 1.0
+        return out
+
+    def inverse_transform(self, z):
+        z = np.atleast_2d(np.asarray(z, dtype=float))
+        return self.centers_[np.argmax(z, axis=1)]
