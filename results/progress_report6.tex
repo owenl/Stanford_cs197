@@ -93,7 +93,13 @@ the reconstruction target's scale.}
 \centering
 \includegraphics[width=0.95\columnwidth]{fig_week6_all_encodings.png}
 \caption{Per-metric comparison with error bars across the six encodings
-(one colour per encoding), eICU demo data.}
+(one colour per encoding), eICU demo data; the maximum in each panel is
+highlighted. Findings: no encoding wins overall --- the maximum changes
+hands by metric. Standard scaling takes both structural metrics (recovery
+0.649, geometry 0.890); mode-specific wins rare-outcome ranking (AUPRC
+0.137, $\approx$1.9$\times$ standard) despite the weakest structure, so
+prediction and fidelity dissociate; quantile takes the best probe AUROC
+(0.686); min--max binning is last on both structural metrics.}
 \end{figure}
 
 \textbf{H1 mostly not supported.} Standard scaling already recovers
