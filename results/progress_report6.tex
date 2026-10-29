@@ -60,11 +60,11 @@ for AUPRC and 0.5 for AUROC. The baseline is itself a hypothesis under test
 thresholds below.
 
 \subsection{Evaluation metrics (locked)}
-\begin{table}
+\begin{table*}
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\resizebox{\columnwidth}{!}{%
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lll}
 Category & Primary metric & Secondary \\
 \hline
@@ -77,7 +77,7 @@ Geometry preservation & Spearman (300-patient subsample) & Pearson, NN overlap \
 AUPRC is primary because the outcome is rare. Per-encoding diagnostics
 (final KL, seed SDs, instability log) are reported but never compared
 across encodings; a clustering check (k-means ARI) is exploratory only.}
-\end{table}
+\end{table*}
 
 \subsection{Protocol and success thresholds (locked)}
 Protocol: identical Week 1--2 procedure and frozen 20-feature set on the
@@ -118,11 +118,11 @@ representation.
 Test-set results (mean $\pm$ SD over 3 seeds, parameter-fair), with the
 locked ceiling and floor printed as reference rows:
 
-\begin{table}
+\begin{table*}
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\resizebox{\columnwidth}{!}{%
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccc}
 Encoding & Probe AUROC & Probe AUPRC & Recovery $R^2$ & Geometry (Spearman) \\
 \hline
@@ -140,7 +140,7 @@ Chance floor & 0.500 & 0.032 & 0.000 & 0.000 \\
 \caption{Encoding comparison on the test split (345 stays, 11 deaths),
 eICU demo data. Validation losses are not comparable across encodings,
 since each changes the reconstruction target's scale.}
-\end{table}
+\end{table*}
 
 \begin{figure}
 \centering
