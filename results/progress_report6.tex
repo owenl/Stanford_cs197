@@ -158,6 +158,22 @@ prediction and fidelity dissociate; quantile takes the best probe AUROC
 (0.686); min--max binning is last on both structural metrics.}
 \end{figure}
 
+\textbf{Which encoding, for which data.} The six encodings differ only
+on the 12 continuous features; the categorical variables are one-hot in
+every condition (the fixed baseline agreed in coaching), so no difference
+between encodings is attributable to categorical handling, and a
+categorical-specific comparison (e.g.\ learned embeddings) is out of
+scope. On continuous features, the winner depends on the distribution.
+For the most extremely skewed feature (WBC, skew 25), monotone transforms
+win (log 0.36, quantile 0.34, vs standard $-$0.05); for moderately skewed
+labs (creatinine, glucose, BUN), standard scaling recovers best
+(0.78--0.80); for the bounded, ceiling-piled feature (oxygen saturation),
+standard and quantile are best (0.50, 0.49) and log is worst (0.11) --- a
+transform that compresses the wrong tail fails on bounded data.
+Mode-specific is the choice only when the goal is ranking the rare
+outcome and latent fidelity does not matter. Binning wins in no
+circumstance we tested.
+
 \textbf{H1 mostly not supported.} Standard scaling already recovers
 creatinine ($R^2$ 0.80), glucose (0.80), and BUN (0.78) best. Only the most
 extreme feature, WBC, needs a monotone transform (log 0.36,
