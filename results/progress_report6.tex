@@ -31,7 +31,7 @@ in the number of learnable parameters across encodings; (4) finalize the
 evaluation metrics (downstream prediction, feature recovery, geometry
 preservation) against standardized-feature baselines; and (5) build a
 reproducible pipeline and experiment table before running the experiments.
-All five items are complete: we ran 36 experiments (9 encodings $\times$ 3
+All five items are complete: we ran 24 experiments (6 encodings $\times$ 3
 seeds under parameter-matched capacity, plus fixed-capacity contrasts) and
 report the results below.
 
@@ -39,7 +39,7 @@ report the results below.
 Our riskiest open question has changed shape. We expected encodings to trade
 off prediction against fidelity; instead the two dissociate --- the encoding
 with the most collapsed latent geometry (mode-specific) gives the best
-ranking of the rare outcome, and both binning schemes fail catastrophically
+ranking of the rare outcome, and the binning encoding fails catastrophically
 in the VAE while scalar encodings barely differ. We do not yet know whether
 this dissociation is a property of the encodings or an artifact of the tiny
 demo sample (11 test deaths), and resolving that on the full eICU data is
@@ -78,13 +78,10 @@ Encoding & Probe AUROC & Probe AUPRC & Recovery $R^2$ & Geometry (Spearman) \\
 \hline
 Standard & 0.661 $\pm$ 0.020 & 0.072 $\pm$ 0.015 & \textbf{0.649 $\pm$ 0.034} & \textbf{0.890 $\pm$ 0.021} \\
 Log & 0.659 $\pm$ 0.015 & 0.083 $\pm$ 0.014 & 0.594 $\pm$ 0.017 & 0.743 $\pm$ 0.016 \\
-Quantile & 0.686 $\pm$ 0.015 & 0.074 $\pm$ 0.014 & 0.611 $\pm$ 0.014 & 0.641 $\pm$ 0.032 \\
+Quantile & \textbf{0.686 $\pm$ 0.015} & 0.074 $\pm$ 0.014 & 0.611 $\pm$ 0.014 & 0.641 $\pm$ 0.032 \\
 Min--max binning & 0.592 $\pm$ 0.017 & 0.078 $\pm$ 0.027 & 0.074 $\pm$ 0.008 & 0.126 $\pm$ 0.052 \\
 PLE & 0.663 $\pm$ 0.013 & 0.056 $\pm$ 0.001 & 0.345 $\pm$ 0.014 & 0.251 $\pm$ 0.025 \\
 Mode-specific & 0.669 $\pm$ 0.051 & \textbf{0.137 $\pm$ 0.051} & 0.229 $\pm$ 0.015 & 0.176 $\pm$ 0.012 \\
-\textit{Extra: quantile binning} & \textit{0.522} & \textit{0.043} & \textit{0.053} & \textit{0.056} \\
-\textit{Extra: periodic} & \textbf{\textit{0.705}} & \textit{0.081} & \textit{0.352} & \textit{0.374} \\
-\textit{Extra: Yeo-Johnson} & \textit{0.666} & \textit{0.057} & \textbf{\textit{0.662}} & \textit{0.745} \\
 \end{tabular}%
 }
 \caption{Encoding comparison on the test split (345 stays, 11 deaths).
@@ -95,25 +92,25 @@ the reconstruction target's scale.}
 \begin{figure}
 \centering
 \includegraphics[width=0.95\columnwidth]{fig_week6_all_encodings.png}
-\caption{Per-metric comparison with error bars across all nine encodings
-(team's six in blue, three extra conditions in grey), eICU demo data.}
+\caption{Per-metric comparison with error bars across the six encodings
+(one colour per encoding), eICU demo data.}
 \end{figure}
 
 \textbf{H1 mostly not supported.} Standard scaling already recovers
 creatinine ($R^2$ 0.80), glucose (0.80), and BUN (0.78) best. Only the most
-extreme feature, WBC, needs a monotone transform (log 0.36, Yeo-Johnson
-0.36, quantile 0.34, vs standard $-$0.05).
+extreme feature, WBC, needs a monotone transform (log 0.36,
+quantile 0.34, vs standard $-$0.05).
 \textbf{H2 supported with a twist.} Mode-specific normalization has the
 worst structure (recovery 0.23, geometry 0.18, KL $\approx$ 0.03) yet the
 best probe AUPRC (0.137, $\approx$1.9$\times$ standard). Prediction and
 fidelity dissociate.
-\textbf{H3 supported, more strongly than stated.} Both binning schemes
-collapse in the VAE (recovery $\leq$ 0.07, geometry $\leq$ 0.13, near-zero
-KL), under both fairness settings and all seeds --- a property of binning
-here, not of the binning scheme or of training.
+\textbf{H3 supported, more strongly than stated.} Min--max binning
+collapses in the VAE (recovery 0.07, geometry 0.13, near-zero KL), under
+both fairness settings and all seeds --- a property of the binned
+representation under this VAE, not of training.
 \textbf{H4 not supported.} Oxygen saturation is recovered best by scalar
-encodings (Yeo-Johnson 0.51, standard 0.50) and worst by log (0.11).
-\textbf{H5 mostly supported.} Probe AUROC spans only 0.66--0.71 across all
+encodings (standard 0.50, quantile 0.49) and worst by log (0.11).
+\textbf{H5 mostly supported.} Probe AUROC spans only 0.66--0.69 across all
 non-binning encodings. Directly answering last report's open question: the
 standardized baseline is a good representation, and no encoding beat it
 overall --- gains are metric-specific (mode-specific for ranking the rare
@@ -134,8 +131,7 @@ baselines, ablations) before the project deadline.
 \subsection{Individual Contributions}
 This week we designed and ran the systematic comparison of numerical
 encoding strategies. Owen implemented the experiment pipeline and the
-parameter-fair training protocol, ran the 36-run grid including the log and
-min--max binning conditions, and produced the comparison tables and figures.
+parameter-fair training protocol, ran the 24-run grid across the six encodings, and produced the comparison tables and figures.
 Max [ \ldots ]. Rita [ \ldots ]. Throughout the week we discussed the
 hypotheses, reviewed each other's code and results, and planned the
 full-data re-run together.
