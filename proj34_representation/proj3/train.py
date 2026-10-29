@@ -38,6 +38,7 @@ ENCODINGS = {
     "quantile_binning": lambda: enc_mod.QuantileBinningEncoder(n_bins=10),
     "ple": lambda: enc_mod.QuantilePLEEncoder(n_bins=8),
     "yeojohnson": enc_mod.YeoJohnsonEncoder,
+    "periodic": lambda: enc_mod.PeriodicEncoder(n_frequencies=4),
 }
 DATA = Path(__file__).resolve().parents[2] / "data"   # <project>/data (symlink in work copy)
 

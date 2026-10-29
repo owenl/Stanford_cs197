@@ -254,3 +254,41 @@ class YeoJohnsonEncoder:
     def inverse_transform(self, z):
         return self.pt_.inverse_transform(np.asarray(z, dtype=float).reshape(-1, 1))[:, 0]
 
+
+
+class PeriodicEncoder:
+    """Periodic (sin/cos) embedding, Gorishniy et al. 2022 style — the team's
+    chosen sixth encoding from Week 2. The standardized value z is mapped to
+    [sin(2*pi*c_j*z), cos(2*pi*c_j*z)] for k frequencies c_j ~ N(0, sigma),
+    drawn once at fit time with a fixed seed (frozen features, not learned).
+    Output dim = 2k. Not exactly invertible: inverse_transform is a
+    least-squares linear readout fitted on the training values."""
+
+    def __init__(self, n_frequencies=4, sigma=1.0, seed=0):
+        self.n_frequencies = n_frequencies
+        self.sigma = sigma
+        self.seed = seed
+
+    def fit(self, x):
+        x = np.asarray(x, dtype=float)
+        x = x[~np.isnan(x)]
+        self.mean_ = x.mean()
+        self.std_ = x.std() if x.std() > 0 else 1.0
+        rng = np.random.default_rng(self.seed)
+        self.coef_ = rng.normal(0.0, self.sigma, size=self.n_frequencies)
+        self.output_dim_ = 2 * self.n_frequencies
+        z = self.transform(x)
+        A = np.hstack([z, np.ones((len(x), 1))])
+        self.readout_, *_ = np.linalg.lstsq(A, x, rcond=None)
+        return self
+
+    def transform(self, x):
+        x = np.asarray(x, dtype=float)
+        z = (x - self.mean_) / self.std_
+        ang = 2 * np.pi * np.outer(z, self.coef_)
+        return np.hstack([np.sin(ang), np.cos(ang)])
+
+    def inverse_transform(self, z):
+        z = np.atleast_2d(np.asarray(z, dtype=float))
+        A = np.hstack([z, np.ones((len(z), 1))])
+        return (A @ self.readout_).ravel()

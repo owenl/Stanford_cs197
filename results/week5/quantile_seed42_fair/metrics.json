@@ -1,0 +1,33 @@
+{
+ "encoding": "quantile",
+ "seed": 42,
+ "latent_dim": 8,
+ "hidden_dim": 64,
+ "input_dim": 37,
+ "n_params": 14773,
+ "best_val_loss": 13.27601347107818,
+ "final_val_parts": {
+  "recon_cat": 3.366084451260774,
+  "recon_cont": 7.0137878639110625,
+  "kl": 3.0922063260838604
+ },
+ "probe_test_AUROC": 0.6799129014697877,
+ "probe_test_AUPRC": 0.07554075658027097,
+ "recovery_R2": {
+  "age": 0.7426691433620203,
+  "admissionweight": 0.7540547899010148,
+  "heartrate_bin1": 0.6999190327097045,
+  "respiration_bin1": 0.4783864866233979,
+  "sao2_bin1": 0.4927850022317395,
+  "sodium": 0.7746797841945314,
+  "Hgb": 0.6061529798284147,
+  "creatinine": 0.5312437281158007,
+  "BUN": 0.6651272939845595,
+  "glucose": 0.6546627545229445,
+  "WBC x 1000": 0.2833070227092561,
+  "platelets x 1000": 0.6788931728756635
+ },
+ "mean_recovery_R2": 0.6134900992549206,
+ "geometry_pearson": 0.624580435308108,
+ "geometry_spearman": 0.6377877460648115
+}
