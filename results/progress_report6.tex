@@ -2,7 +2,7 @@
 
 % Week-6 report, restructured 2026-10-29: locked baseline + evaluation
 % metrics first, demo results judged against pre-registered thresholds.
-\def\plaintitle{CS197 Progress Report: Numerical Encoding Comparison}
+\def\plaintitle{CS197 Assignment 6: Progress Report: Numerical Encoding Comparison}
 \def\plainauthor{Max Lee, Owen Liu, and Rita Xiang}
 
 \begin{document}
@@ -50,8 +50,10 @@ thresholds locked below.
 
 \section{Evaluation design (locked)}
 \subsection{Baseline (locked)}
-The primary baseline is \textbf{standard scaling} in the frozen VAE: every
-encoding is reported as a difference from standard, never as a bare number.
+The primary baseline is \textbf{standard scaling} in the frozen VAE:
+standard is the reference for every comparison --- tables report absolute
+values with standard first, framed by the ceiling and floor rows, and
+every verdict is stated as a difference from standard.
 Two reference points frame every table: a \textbf{ceiling}, logistic
 regression on the original standardized features $X$ (what compression to
 the latent space costs), and a \textbf{chance floor}, outcome prevalence
@@ -98,8 +100,10 @@ Anything that misses its threshold is reported as not confirmed.
 \subsection{Setup and hypotheses}
 We used the frozen Week-2 setup throughout: 20 features (12 numerical, 5
 binary admission-diagnosis indicators, 3 categorical) from the eICU demo
-(1,722 stays), stratified train/validation/test splits (seed 42), and the
-Week-3 VAE configuration (latent dimension 8, 100 epochs). Encodings were
+(1,722 stays), stratified train/validation/test splits (1,101/276/345
+stays; 37/9/11 deaths; seed 42), and the Week-3 VAE configuration (latent
+dimension 8, 100 epochs, Adam lr $10^{-3}$, batch 256, $\beta = 1$ with a
+10-epoch KL warm-up; hidden width 64 in the reference model). Encodings were
 compared parameter-fairly: hidden width was adjusted per encoding so total
 parameters match the standardized baseline ($\approx$14,700). Mortality at
 48 hours is the target $Y$ throughout --- predicted from the latent
@@ -116,7 +120,14 @@ representation.
 
 \subsection{Demo dry-run: results}
 Test-set results (mean $\pm$ SD over 3 seeds, parameter-fair), with the
-locked ceiling and floor printed as reference rows:
+locked ceiling and floor printed as reference rows. Paired per-seed
+differences against standard (the same three seeds for every encoding)
+qualify the headline: mode-specific's AUPRC margin is $+0.065$ on seed
+means but seed-inconsistent (paired $\Delta$: $+0.094$, $+0.106$,
+$-0.005$; 95\% CI $-0.087$ to $0.216$), while its recovery deficit is
+consistent ($\Delta = -0.420$; 95\% CI $-0.543$ to $-0.296$). The
+verdicts below follow the locked mean-based thresholds; the intervals say
+how far to trust them.
 
 \begin{table*}
 \centering
@@ -145,12 +156,13 @@ since each changes the reconstruction target's scale.}
 \begin{figure}
 \centering
 \includegraphics[width=\columnwidth]{fig_week6_all_encodings.png}
-\caption{Per-metric comparison with error bars across the six encodings
-(one colour per encoding), eICU demo data; the highest bar in each panel is
-shown in navy. Findings: no encoding wins overall --- the maximum changes
+\caption{Per-metric comparison with error bars across the six encodings,
+eICU demo data; bars are grey, with the highest bar in each panel shown in
+navy. Findings: no encoding wins overall --- the maximum changes
 hands by metric. Standard scaling takes both structural metrics (recovery
-0.649, geometry 0.890); mode-specific wins rare-outcome ranking (AUPRC
-0.137, $\approx$1.9$\times$ standard) despite the weakest structure, so
+0.649, geometry 0.890); mode-specific has the highest mean rare-outcome
+ranking (AUPRC 0.137, $\approx$1.9$\times$ standard; seed-inconsistent,
+see text) despite the weakest structure, so
 prediction and fidelity dissociate; quantile takes the best probe AUROC
 (0.686); min--max binning is last on both structural metrics.}
 \end{figure}
@@ -178,7 +190,8 @@ quantile 0.34, vs standard $-$0.05).
 \textbf{H2 supported with a twist.} Mode-specific normalization has the
 worst structure (recovery 0.23, geometry 0.18, KL $\approx$ 0.03) yet the
 best probe AUPRC (0.137, $\approx$1.9$\times$ standard). Prediction and
-fidelity dissociate.
+fidelity dissociate. Its AUPRC edge, however, is seed-inconsistent (paired
+95\% CI crosses zero), while its structural deficit appears on every seed.
 \textbf{H3 supported, more strongly than stated.} Min--max binning
 collapses in the VAE (recovery 0.07, geometry 0.13, near-zero KL), under
 both fairness settings and all seeds --- a property of the binned
@@ -194,17 +207,22 @@ outcome, transforms for the most-skewed feature).
 \textbf{Verdicts against the locked thresholds (demo).}
 \emph{Baseline validated?} No --- standard's geometry passes (0.890
 $\geq$ 0.80), but mode-specific beats its AUPRC by 0.065 $\geq$ 0.02, so
-the baseline has a real challenger on the primary metric.
-\emph{Dissociation?} Confirmed on demo: AUPRC margin $+$0.065 with a
-recovery deficit of 0.42, both beyond their thresholds.
+under the locked rule the baseline is not validated --- it has a
+challenger on seed means on the primary metric.
+\emph{Dissociation?} The criterion is met on seed means (AUPRC margin
+$+$0.065, recovery deficit 0.42), but it is \emph{not} confirmed
+statistically: the AUPRC margin's paired 95\% CI crosses zero, so on the
+demo the dissociation is a hypothesis for the full data, not a finding.
 \emph{Binning collapse?} Confirmed on demo: recovery 0.074 $<$ 0.15 and
-final KL $\approx$ 0 $<$ 0.5.
+final KL $\approx$ 0 $<$ 0.5, consistent across all seeds.
 Diagnostics: no failed runs in the full grid; in the latent-dimension loop
 (4/8/32), standard's recovery rises 0.375 $\rightarrow$ 0.649 $\rightarrow$
 0.893, mode-specific's AUPRC edge peaks at dimension 8, and binning never
 recovers at any dimension (numerically unstable at 32).
-Caveat: with 11 test deaths, AUPRC differences are suggestive, not
-conclusive; the full-data run below is the deciding test.
+Limitations: this dry-run uses the demo cohort only (1,722 stays, 11
+test deaths), a single dataset and a single outcome; no mechanism test has
+been run yet, and subgroup performance was not assessed. The full-data
+run is the deciding test.
 
 \section{Team members' contributions}
 \subsection{Individual Contributions}
