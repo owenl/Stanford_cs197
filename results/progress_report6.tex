@@ -110,7 +110,7 @@ parameters match the standardized baseline ($\approx$14,700). Mortality at
 representation, never an input feature.
 
 Hypotheses: \textbf{H1} --- skewed features (creatinine, glucose, WBC) are
-recovered better under quantile/log-type transforms than standard scaling.
+recovered better under rank-based transforms (quantile-normalized, PLE) than standard scaling.
 \textbf{H2} --- mode-specific normalization preserves multimodal structure
 best. \textbf{H3} --- binning encodings lose information the VAE cannot
 recover. \textbf{H4} --- bounded features (e.g., oxygen saturation) suit
@@ -125,9 +125,13 @@ differences against standard (the same three seeds for every encoding)
 qualify the headline: mode-specific's AUPRC margin is $+0.065$ on seed
 means but seed-inconsistent (paired $\Delta$: $+0.094$, $+0.106$,
 $-0.005$; 95\% CI $-0.087$ to $0.216$), while its recovery deficit is
-consistent ($\Delta = -0.420$; 95\% CI $-0.543$ to $-0.296$). The
-verdicts below follow the locked mean-based thresholds; the intervals say
-how far to trust them.
+consistent ($\Delta = -0.420$; 95\% CI $-0.543$ to $-0.296$). Periodic's
+AUROC margin is the most seed-consistent probe advantage in the set
+($+0.044$; positive on all three seeds; 95\% CI $-0.005$ to $0.093$), and
+quantile binning's structural deficits are consistent (recovery
+$\Delta = -0.596$, geometry $\Delta = -0.834$). The verdicts below follow
+the locked mean-based thresholds; the intervals say how far to trust
+them.
 
 \begin{table*}
 \centering
@@ -138,11 +142,11 @@ how far to trust them.
 Encoding & Probe AUROC & Probe AUPRC & Recovery $R^2$ & Geometry (Spearman) \\
 \hline
 Standard & 0.661 $\pm$ 0.020 & 0.072 $\pm$ 0.015 & \textbf{0.649 $\pm$ 0.034} & \textbf{0.890 $\pm$ 0.021} \\
-Log & 0.659 $\pm$ 0.015 & 0.083 $\pm$ 0.014 & 0.594 $\pm$ 0.017 & 0.743 $\pm$ 0.016 \\
-Quantile & \textbf{0.686 $\pm$ 0.015} & 0.074 $\pm$ 0.014 & 0.611 $\pm$ 0.014 & 0.641 $\pm$ 0.032 \\
-Min--max binning & 0.592 $\pm$ 0.017 & 0.078 $\pm$ 0.027 & 0.074 $\pm$ 0.008 & 0.126 $\pm$ 0.052 \\
-PLE & 0.663 $\pm$ 0.013 & 0.056 $\pm$ 0.001 & 0.345 $\pm$ 0.014 & 0.251 $\pm$ 0.025 \\
+Quantile-normalized & 0.686 $\pm$ 0.015 & 0.074 $\pm$ 0.014 & 0.611 $\pm$ 0.014 & 0.641 $\pm$ 0.032 \\
 Mode-specific & 0.669 $\pm$ 0.051 & \textbf{0.137 $\pm$ 0.051} & 0.229 $\pm$ 0.015 & 0.176 $\pm$ 0.012 \\
+Quantile binning & 0.522 $\pm$ 0.050 & 0.043 $\pm$ 0.008 & 0.053 $\pm$ 0.015 & 0.056 $\pm$ 0.014 \\
+PLE & 0.663 $\pm$ 0.013 & 0.056 $\pm$ 0.001 & 0.345 $\pm$ 0.014 & 0.251 $\pm$ 0.025 \\
+Periodic & \textbf{0.705 $\pm$ 0.008} & 0.081 $\pm$ 0.002 & 0.352 $\pm$ 0.006 & 0.374 $\pm$ 0.042 \\
 \hline
 Ceiling: logistic on $X$ & 0.693 & 0.105 & --- & --- \\
 Chance floor & 0.500 & 0.032 & 0.000 & 0.000 \\
@@ -163,8 +167,11 @@ hands by metric. Standard scaling takes both structural metrics (recovery
 0.649, geometry 0.890); mode-specific has the highest mean rare-outcome
 ranking (AUPRC 0.137, $\approx$1.9$\times$ standard; seed-inconsistent,
 see text) despite the weakest structure, so
-prediction and fidelity dissociate; quantile takes the best probe AUROC
-(0.686); min--max binning is last on both structural metrics.}
+prediction and fidelity dissociate; periodic takes the best probe
+AUROC (0.705); quantile binning is last on both structural metrics. The
+six shown are the team's selected methods: standardized scalar,
+quantile-normalized scalar, mode-specific normalization (Gaussian
+mixtures), quantile binning, PLE, and periodic.}
 \end{figure}
 
 \textbf{Which encoding, for which data.} The six encodings differ only
@@ -173,36 +180,45 @@ every condition (the fixed baseline agreed in coaching), so no difference
 between encodings is attributable to categorical handling, and a
 categorical-specific comparison (e.g.\ learned embeddings) is out of
 scope. On continuous features, the winner depends on the distribution.
-For the most extremely skewed feature (WBC, skew 25), monotone transforms
-win (log 0.36, quantile 0.34, vs standard $-$0.05); for moderately skewed
-labs (creatinine, glucose, BUN), standard scaling recovers best
-(0.78--0.80); for the bounded, ceiling-piled feature (oxygen saturation),
-standard and quantile are best (0.50, 0.49) and log is worst (0.11) --- a
-transform that compresses the wrong tail fails on bounded data.
-Mode-specific is the choice only when the goal is ranking the rare
-outcome and latent fidelity does not matter. Binning wins in no
-circumstance we tested.
+For the most extremely skewed feature (WBC, skew 25), rank-based
+transforms win: quantile-normalized recovers it best (0.34, vs standard
+$-$0.05), with PLE (0.30) and mode-specific (0.19) also clearing the
+$+0.10$ rescue threshold; quantile binning does not ($-$0.01). For
+moderately skewed labs (creatinine, glucose, BUN), standard scaling
+recovers best (0.78--0.80) --- and quantile normalization actively hurts
+creatinine (0.48). For the bounded, ceiling-piled feature (oxygen
+saturation), standard and quantile-normalized are best (0.50, 0.49),
+while the specialized encodings fail (periodic 0.19, mode-specific 0.09,
+quantile binning 0.02). Mode-specific is the choice only when the goal is
+ranking the rare outcome and latent fidelity does not matter; periodic
+gives the best overall probe AUROC but bottom-half structure. Quantile
+binning wins in no circumstance we tested.
 
 \textbf{H1 mostly not supported.} Standard scaling already recovers
 creatinine ($R^2$ 0.80), glucose (0.80), and BUN (0.78) best. Only the most
-extreme feature, WBC, needs a monotone transform (log 0.36,
-quantile 0.34, vs standard $-$0.05).
+extreme feature, WBC, needs a rank-based transform (quantile-normalized
+0.34, PLE 0.30, vs standard $-$0.05).
 \textbf{H2 supported with a twist.} Mode-specific normalization has the
 worst structure (recovery 0.23, geometry 0.18, KL $\approx$ 0.03) yet the
 best probe AUPRC (0.137, $\approx$1.9$\times$ standard). Prediction and
 fidelity dissociate. Its AUPRC edge, however, is seed-inconsistent (paired
 95\% CI crosses zero), while its structural deficit appears on every seed.
-\textbf{H3 supported, more strongly than stated.} Min--max binning
-collapses in the VAE (recovery 0.07, geometry 0.13, near-zero KL), under
-both fairness settings and all seeds --- a property of the binned
-representation under this VAE, not of training.
-\textbf{H4 not supported.} Oxygen saturation is recovered best by scalar
-encodings (standard 0.50, quantile 0.49) and worst by log (0.11).
-\textbf{H5 mostly supported.} Probe AUROC spans only 0.66--0.69 across all
-non-binning encodings. Directly answering last report's open question: the
-standardized baseline is a good representation, and no encoding beat it
-overall --- gains are metric-specific (mode-specific for ranking the rare
-outcome, transforms for the most-skewed feature).
+\textbf{H3 supported, more strongly than stated.} Quantile binning
+--- the binning method among our six --- collapses in the VAE (recovery
+0.05, geometry 0.06, final KL 0.013), under both fairness settings and
+all seeds --- a property of the binned representation under this VAE,
+not of training.
+\textbf{H4 not supported.} Oxygen saturation is recovered best by
+scalar encodings (standard 0.50, quantile-normalized 0.49) and worst by
+the specialized ones (quantile binning 0.02, mode-specific 0.09, periodic
+0.19).
+\textbf{H5 mostly supported.} Probe AUROC spans 0.66--0.71 across the
+non-binning encodings; the one real challenger is periodic (0.705, ahead
+of standard on all three seeds, though its paired CI just crosses zero).
+Directly answering last report's open question: the standardized baseline
+is a good representation, and no encoding beat it overall --- gains are
+metric-specific (mode-specific for ranking the rare outcome, periodic for
+AUROC, rank transforms for the most-skewed feature).
 
 \textbf{Verdicts against the locked thresholds (demo).}
 \emph{Baseline validated?} No --- standard's geometry passes (0.890
@@ -213,12 +229,13 @@ challenger on seed means on the primary metric.
 $+$0.065, recovery deficit 0.42), but it is \emph{not} confirmed
 statistically: the AUPRC margin's paired 95\% CI crosses zero, so on the
 demo the dissociation is a hypothesis for the full data, not a finding.
-\emph{Binning collapse?} Confirmed on demo: recovery 0.074 $<$ 0.15 and
-final KL $\approx$ 0 $<$ 0.5, consistent across all seeds.
+\emph{Binning collapse?} Confirmed on demo for quantile binning, the
+binning method among the six: recovery 0.053 $<$ 0.15 and final KL 0.013
+$<$ 0.5, consistent across all seeds.
 Diagnostics: no failed runs in the full grid; in the latent-dimension loop
 (4/8/32), standard's recovery rises 0.375 $\rightarrow$ 0.649 $\rightarrow$
-0.893, mode-specific's AUPRC edge peaks at dimension 8, and binning never
-recovers at any dimension (numerically unstable at 32).
+0.893, mode-specific's AUPRC edge peaks at dimension 8, and quantile
+binning never recovers at any dimension (numerically unstable at 32).
 Limitations: this dry-run uses the demo cohort only (1,722 stays, 11
 test deaths), a single dataset and a single outcome; no mechanism test has
 been run yet, and subgroup performance was not assessed. The full-data
